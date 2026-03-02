@@ -1,16 +1,12 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose"; 
 
-// Schema for User collection
 const userSchema = new mongoose.Schema(
   {
-    // User name
     name: {
       type: String,
       required: true,
       trim: true,
     },
-
-    // User email (must be unique)
     email: {
       type: String,
       required: true,
@@ -18,16 +14,16 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
-
-    // Hashed password
     password: {
       type: String,
       required: true,
     },
   },
   {
-    timestamps: true, // automatically adds createdAt and updatedAt
+    timestamps: true,
   }
 );
 
-module.exports = mongoose.model("User", userSchema);
+
+const User = mongoose.model("User", userSchema);
+export default User;

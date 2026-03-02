@@ -1,39 +1,16 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
-// Schema for Product collection
 const productSchema = new mongoose.Schema(
   {
-    // Product name
-    name: {
-      type: String,
-      required: true,
-      trim: true, // removes extra spaces
-    },
-
-    // Product price
-    price: {
-      type: Number,
-      required: true,
-      min: 0, // price cannot be negative
-    },
-
-    // Product description
-    description: {
-      type: String,
-      default: "",
-    },
-
-    // Available stock quantity
-    stock: {
-      type: Number,
-      required: true,
-      min: 0, // stock cannot be negative
-    },
+    title: { type: String, required: true, trim: true },
+    description: { type: String, default: "" },
+    price: { type: Number, required: true, min: 0 },
+    image: { type: String, default: "" },
+    rating: { type: Number, default: 0 },
+    stock: { type: Number, default: 0 } // Kept stock just in case
   },
-  {
-    timestamps: true, // adds createdAt and updatedAt automatically
-  }
+  { timestamps: true }
 );
 
-// Export model
-module.exports = mongoose.model("Product", productSchema);
+const Product = mongoose.model("Product", productSchema);
+export default Product;

@@ -1,30 +1,26 @@
-const jwt = require("jsonwebtoken");
+import jwt from "jsonwebtoken";
 
 // Middleware function to verify JWT token
 const authMiddleware = (req, res, next) => {
   try {
-    // Get token from Authorization header
     const authHeader = req.header("Authorization");
 
-    // Check if header exists
     if (!authHeader) {
       return res.status(401).json({ message: "Access denied. No token provided." });
     }
 
-    // Format expected: "Bearer token"
+    // Format expected: "Bearer <token>"
     const token = authHeader.split(" ")[1];
 
     if (!token) {
       return res.status(401).json({ message: "Invalid token format" });
     }
 
-    // Verify token using secret key
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // Verify token - ensure process.env.JWT_SECRET is defined in your .env file
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "your_temporary_secret_key");
 
-    // Attach user data to request object
     req.user = decoded;
-
-    next(); // Continue to next middleware or route
+    next(); 
 
   } catch (error) {
     console.log("JWT Error:", error.message);
@@ -32,4 +28,4 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
-module.exports = authMiddleware;
+export default authMiddleware; 

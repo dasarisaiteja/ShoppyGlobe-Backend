@@ -1,46 +1,65 @@
 import express from "express";
-const router = express.Router();
-
-
 import Cart from "../models/Cart.js";
 import Product from "../models/Product.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 
-// --------------------------------------------------
-// ADD PRODUCT TO CART
-// --------------------------------------------------
+const router = express.Router();
+
+// ADD TO CART
 router.post("/", authMiddleware, async (req, res) => {
   try {
     const { productId, quantity } = req.body;
 
-    if (!productId || !quantity) {
-      return res.status(400).json({ message: "Product ID and quantity are required" });
-    }
-
-    const productExists = await Product.findById(productId);
-    if (!productExists) {
+    const product = await Product.findById(productId);
+    if (!product)
       return res.status(404).json({ message: "Product not found" });
-    }
 
-    const newCartItem = new Cart({
-      user: req.user.userId,  // Injected by authMiddleware
-      product: productId,
-      quantity: quantity,
+    if (quantity > product.stockQuantity)
+      return res.status(400).json({ message: "Stock not available" });
+
+    const cartItem = await Cart.create({
+      userId: req.user.id,
+      productId,
+      quantity
     });
 
-    await newCartItem.save();
-    res.status(201).json({ message: "Product added to cart", cartItem: newCartItem });
-
-  } catch (err) {
-    console.log("Add to cart error:", err.message);
+    res.status(201).json(cartItem);
+  } catch (error) {
     res.status(500).json({ message: "Server error" });
   }
 });
 
+// UPDATE CART ITEM
+router.put("/:id", authMiddleware, async (req, res) => {
+  try {
+    const { quantity } = req.body;
 
-// UPDATE & DELETE ROUTES... (Rest of your logic stays the same)
+    const cartItem = await Cart.findById(req.params.id);
+    if (!cartItem)
+      return res.status(404).json({ message: "Cart item not found" });
 
+    cartItem.quantity = quantity;
+    await cartItem.save();
 
-// ... your PUT and DELETE logic here ...
+    res.status(200).json(cartItem);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
-export default router; 
+// DELETE CART ITEM
+router.delete("/:id", authMiddleware, async (req, res) => {
+  try {
+    const cartItem = await Cart.findById(req.params.id);
+    if (!cartItem)
+      return res.status(404).json({ message: "Cart item not found" });
+
+    await Cart.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({ message: "Cart item removed" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+export default router;

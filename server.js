@@ -1,51 +1,30 @@
 import express from "express";
-import mongoose from "mongoose";
+import cors from "cors";
+import dotenv from "dotenv";
+import connectDB from "./config/db.js";
 
-// Import routes
-import productRoutes from "/Users/dasarisaiteja/Desktop/intenshala/shoppyglobe-backend/routers/productRouter.js";
-import cartRoutes from "/Users/dasarisaiteja/Desktop/intenshala/shoppyglobe-backend/routers/cartRoutes.js";
-import authRoutes from "/Users/dasarisaiteja/Desktop/intenshala/shoppyglobe-backend/routers/authRoutes.js";
+import productRoutes from "./routers/productRouter.js";
+import cartRoutes from "./routers/cartRoutes.js";
+import authRoutes from "./routers/authRoutes.js";
 
-// Create express app
-const app = new express();
+// import mongoose from "mongoose";
 
-// -------------------- MIDDLEWARE --------------------
+// mongoose.connect(process.env.MONGO_URI)
+//   .then(() => console.log("MongoDB connected"))
+//   .catch((err) => console.log(err));
 
-// To accept JSON data from frontend
+dotenv.config();
+connectDB();
+
+const app = express();
+
 app.use(express.json());
+app.use(cors());
 
-// // To allow frontend to connect with backend
-// app.use(cors());
-
-// -------------------- ROUTES --------------------
-
-// Product routes
 app.use("/products", productRoutes);
-
-// Cart routes
 app.use("/cart", cartRoutes);
-
-// Authentication routes
 app.use("/", authRoutes);
 
-// -------------------- DATABASE CONNECTION --------------------
-
-mongoose.connect("mongodb://localhost:27017/Shoppyglobe");
-
-const db = mongoose.connection;
-
-db.on("open", () => {
-  console.log("Database connected successfully");
-});
-
-db.on("error", (err) => {
-  console.log("Database connection error:", err);
-});
-
-// -------------------- SERVER --------------------
-
-const PORT = 3000;
-
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+app.listen(3000, () => {
+  console.log("Server running on port 3000");
 });
